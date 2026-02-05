@@ -40,7 +40,7 @@ def find_price_file(hospital_url):
             href = link["href"]
 
             if any(k in href.lower() for k in keywords):
-                if href.startwith("/"):
+                if href.startswith("/"):
                     href = hospital_url.rstrip("/") + href
                 return href
         return None
