@@ -20,7 +20,7 @@ if audio_file:
   for segment in segments:
     print(f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}")
 
-st.write(text)
+#st.write(text)
 
 st.divider()
 # Input Data Via Text
