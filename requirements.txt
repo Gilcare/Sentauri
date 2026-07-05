@@ -1,4 +1,5 @@
 faster-whisper
 ffmpeg
 streamlit
+torch
 transformers
