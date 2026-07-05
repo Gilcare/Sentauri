@@ -1,16 +1,24 @@
 import streamlit as st
+from faster_whisper import WhisperModel
 from transformers import pipeline
 
 st.set_page_config(page_title="Pulmonology", layout="wide")
 
 st.title("🫁Aya", text_alignment = "center")
 st.divider()
-audio_value = st.audio_input("Record Data")
-#if audio_value
 
-
-asr = pipeline("automatic-speech-recognition", model="openai/whisper-small")
-text = asr("recording.wav")["text"]
+# Choose model 
+model = WhisperModel(
+    "base",
+    device="cpu",       
+    compute_type="int8"
+)
+audio_file = st.audio_input("Record Data")
+if audio_file:
+  segments, info = model.transcribe(audio_file)
+  print("Language:", info.language)
+  for segment in segments:
+    print(f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}")
 
 st.write(text)
 
