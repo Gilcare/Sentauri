@@ -1,24 +1,35 @@
 import streamlit as st
 from faster_whisper import WhisperModel
-from transformers import pipeline
+import tempfile
 
-st.set_page_config(page_title="Pulmonology", layout="wide")
+st.title("🫁 Aya", text_alignment = "center")
 
-st.title("🫁Aya", text_alignment = "center")
-st.divider()
-
-# Choose model 
 model = WhisperModel(
     "base",
-    device="cpu",       
+    device="cpu",
     compute_type="int8"
 )
+
 audio_file = st.audio_input("Record Data")
-if audio_file:
-  segments, info = model.transcribe(audio_file)
-  print("Language:", info.language)
-  for segment in segments:
-    print(f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}")
+
+if audio_file is not None:
+    # Save to temporary file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+        tmp.write(audio_file.read())
+        tmp_path = tmp.name
+
+    segments, info = model.transcribe(tmp_path)
+
+    st.write("Language:", info.language)
+
+    full_text = ""
+
+    for segment in segments:
+        full_text += segment.text + " "
+        st.write(f"{segment.start:.2f}s → {segment.end:.2f}s : {segment.text}")
+
+    st.subheader("Full transcription")
+    st.success(full_text)
 
 #st.write(text)
 
