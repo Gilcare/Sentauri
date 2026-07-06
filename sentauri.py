@@ -224,7 +224,7 @@ with st.form("Input Patient's Details", clear_on_submit=False):
     # Allow custom diagnosis
     if selected_diagnosis == "Other":
         diagnosis = st.text_input(
-            "Specify Diagnosis",
+            "Other Diagnosis",
             value=current_diagnosis
         )
     else:
