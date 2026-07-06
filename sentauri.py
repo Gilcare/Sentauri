@@ -30,7 +30,16 @@ st.info("""Please say:
 \nExample:'John Smith, age 54, male, hospital number 345678, diagnosis asthma.'""")
 
 
-import re
+if "patient" not in st.session_state:
+    st.session_state.patient = {
+        "name": "",
+        "age": 0,
+        "gender": "Female",
+        "hospital_number": "",
+        "diagnosis": ""
+    }
+
+
 
 def extract_fields(text: str):
     """
@@ -139,8 +148,16 @@ if audio_file is not None:
 
     st.subheader("Full transcription")
     st.success(full_text)
-    data = extract_fields(full_text)
-    st.write(data)
+    patient = extract_fields(full_text)
+
+    st.session_state.name = patient["name"] or ""
+    st.session_state.age = patient["age"] or 0
+    st.session_state.gender = patient["gender"] or "Female"
+    st.session_state.hospital_number = patient["hospital_number"] or ""
+    st.session_state.diagnosis = patient["diagnosis"] or ""
+    
+
+    st.session_state.patient = patient
 
 
 
@@ -155,12 +172,39 @@ if audio_file is not None:
 
 st.divider()
 # Input Data Via Text
-with st.form("Input Patient's Details", clear_on_submit = True):
-  name= st.text_input("Name")
-  age= st.number_input("Age")
-  gender= st.radio("Gender", ["Female","Male"])
-  hospital_number = st.number_input("Hospital Number")
-  diagnosis = st.text_input("Diagnosis")
-  submit = st.form_submit_button("Submit")
-  if submit:
-    st.success("Submitted☑️")
+st.divider()
+
+with st.form("Input Patient's Details"):
+
+    name = st.text_input(
+        "Name",
+        value=st.session_state.patient["name"], key = "name"
+    )
+
+    age = st.number_input(
+        "Age",
+        min_value=0,
+        max_value=120,
+        value=st.session_state.patient["age"], key = "age"
+    )
+
+    gender = st.radio(
+        "Gender",
+        ["Female", "Male"], key = "gender",
+        index=0 if st.session_state.patient["gender"] == "Female" else 1
+    )
+
+    hospital_number = st.text_input(
+        "Hospital Number", key = "hospital_number",
+        value=st.session_state.patient["hospital_number"]
+    )
+
+    diagnosis = st.text_input(
+        "Diagnosis", key = "diagnosis",
+        value=st.session_state.patient["diagnosis"]
+    )
+
+    submit = st.form_submit_button("Submit")
+
+    if submit:
+        st.success("Submitted ☑️")
