@@ -1,5 +1,6 @@
 faster-whisper
 ffmpeg
+regex
 streamlit
 torch
 torchvision
