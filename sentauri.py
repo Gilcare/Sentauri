@@ -6,13 +6,6 @@ from faster_whisper import WhisperModel
 
 st.title("🫁 Aya", text_alignment = "center")
 
-"""@st.cache_resource
-def load_pipeline():
-    # Adding torch_dtype="auto" or "float16" speeds up GPU inference
-    return pipeline("text-generation", model="Qwen/Qwen2.5-0.5B-Instruct", dtype=torch.float16)
-pipe = load_pipeline()"""
-
-
 
 model = WhisperModel(
     "base",
@@ -138,7 +131,7 @@ if audio_file is not None:
 
     segments, info = model.transcribe(tmp_path)
 
-    st.write("Language:", info.language)
+    #st.write("Language:", info.language)
 
     full_text = ""
 
@@ -163,18 +156,10 @@ if audio_file is not None:
 
 
 
-
-
-
-
-
-
-
-st.divider()
 # Input Data Via Text
 st.divider()
 
-with st.form("Input Patient's Details"):
+with st.form("Patient's Details"):
 
     name = st.text_input(
         "Name",
