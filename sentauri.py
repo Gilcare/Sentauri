@@ -20,7 +20,7 @@ st.info("""Please say:
 \nGender,
 \nHospital Number,
 \nDiagnosis.
-\nExample:'John Smith, age 54, male, hospital number 345678, diagnosis asthma.'""")
+\nExample:'Ada Femi, age 25, female, hospital number 345678, diagnosis asthma.'""")
 
 
 if "patient" not in st.session_state:
@@ -137,7 +137,7 @@ if audio_file is not None:
 
     for segment in segments:
         full_text += segment.text + " "
-        st.write(f"{segment.start:.2f}s → {segment.end:.2f}s : {segment.text}")
+        #st.write(f"{segment.start:.2f}s → {segment.end:.2f}s : {segment.text}")
 
     st.subheader("Full transcription")
     st.success(full_text)
