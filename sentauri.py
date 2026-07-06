@@ -161,6 +161,7 @@ if audio_file is not None:
 # List of common pulmonology diagnoses
 DIAGNOSES = [
     "Asthma",
+    "Atypical Pneumonia",
     "COPD",
     "Pulmonary Tuberculosis",
     "Post-TB Lung Sequelae",
@@ -174,8 +175,10 @@ DIAGNOSES = [
     "Sarcoidosis",
     "Obstructive Sleep Apnea",
     "COVID-19 Pneumonia",
-    "Empyema",
+    "Empyema thoracis",
     "Pneumothorax",
+    "Lymphangioleiomyomatosis",
+    "Pulmonary Langerhans Cell Histiocytosis",
     "Other"
 ]
 
@@ -245,5 +248,6 @@ with st.form("Input Patient's Details", clear_on_submit=False):
         # patients_collection.insert_one(patient)
 
         st.success("Patient record saved successfully. ✅")
+        st.write(patient)
 
 
