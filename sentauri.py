@@ -18,29 +18,6 @@ model = WhisperModel(
     compute_type="int8"
 )
 
-audio_file = st.audio_input("Record Data")
-
-if audio_file is not None:
-    # Save to temporary file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-        tmp.write(audio_file.read())
-        tmp_path = tmp.name
-
-    segments, info = model.transcribe(tmp_path)
-
-    st.write("Language:", info.language)
-
-    full_text = ""
-
-    for segment in segments:
-        full_text += segment.text + " "
-        st.write(f"{segment.start:.2f}s → {segment.end:.2f}s : {segment.text}")
-
-    st.subheader("Full transcription")
-    st.success(full_text)
-
-
-
 
 def extract_fields(text: str):
     """
@@ -82,6 +59,28 @@ def extract_fields(text: str):
         "diagnosis": diagnosis
     }
 
+audio_file = st.audio_input("Record Data")
+
+if audio_file is not None:
+    # Save to temporary file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+        tmp.write(audio_file.read())
+        tmp_path = tmp.name
+
+    segments, info = model.transcribe(tmp_path)
+
+    st.write("Language:", info.language)
+
+    full_text = ""
+
+    for segment in segments:
+        full_text += segment.text + " "
+        st.write(f"{segment.start:.2f}s → {segment.end:.2f}s : {segment.text}")
+
+    st.subheader("Full transcription")
+    st.success(full_text)
+    data = extract_fields(full_text)
+    st.write(data)
 
 
 
@@ -90,7 +89,7 @@ def extract_fields(text: str):
 
 
 
-extract_fields(full_text)
+
 
 
 
