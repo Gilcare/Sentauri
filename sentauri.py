@@ -21,14 +21,7 @@ model = WhisperModel(
 )
 
 
-st.info("Please say:
-
-Name,
-Age,
-Gender,
-Hospital Number,
-Diagnosis.
-
+st.info("Please say:/nName,/nAge,/nGender,/nHospital Number,/nDiagnosis./n
 Example:
 'John Smith, age 54, male, hospital number 345678, diagnosis asthma.'")
 
