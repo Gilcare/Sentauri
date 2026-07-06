@@ -30,7 +30,7 @@ Hospital Number,
 Diagnosis.
 
 Example:
-"John Smith, age 54, male, hospital number 345678, diagnosis asthma."")
+'John Smith, age 54, male, hospital number 345678, diagnosis asthma.'")
 
 
 
