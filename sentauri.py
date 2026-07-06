@@ -1,6 +1,8 @@
+import re
 import streamlit as st
-from faster_whisper import WhisperModel
 import tempfile
+from faster_whisper import WhisperModel
+
 
 st.title("🫁 Aya", text_alignment = "center")
 
