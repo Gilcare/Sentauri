@@ -176,7 +176,10 @@ if audio_file is not None:
 DIAGNOSES = [
     "Asthma",
     "Atypical Pneumonia",
+    "Benign Lung Mass",
     "COPD",
+    "Diffuse Parenchymal Lung Disease",
+    "Disseminated Tuberculosis",
     "Pulmonary Tuberculosis",
     "Post-TB Lung Sequelae",
     "Interstitial Lung Disease",
@@ -190,9 +193,11 @@ DIAGNOSES = [
     "Obstructive Sleep Apnea",
     "COVID-19 Pneumonia",
     "Empyema thoracis",
+    "Supporative Lung Disease",
     "Pneumothorax",
     "Lymphangioleiomyomatosis",
     "Pulmonary Langerhans Cell Histiocytosis",
+    "Viral Pharyngitis",
     "Other"
 ]
 
