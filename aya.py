@@ -136,15 +136,19 @@ with st.form("Input Patient's Details", clear_on_submit=True):
 
     if submit:
 
-        patient = {
+        if selected_diagnosis == "Other" and not diagnosis:
+            st.error("Please enter a diagnosis.")
+
+        else:
+            patient = {
             "name": name,
             "age": age,
             "gender": gender,
             "hospital_number": hospital_number,
             "diagnosis": diagnosis,
             "visit_date": st.session_state.visit_date.isoformat(),
-        }
-
-        data.insert_one(patient)
-
-        st.success("Patient record saved successfully. ✅")
+            }
+            
+            data.insert_one(patient)
+            
+            st.success("Patient record saved successfully. ✅")
