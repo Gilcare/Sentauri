@@ -1,7 +1,24 @@
+import re
+import streamlit as st
+import tempfile
+from faster_whisper import WhisperModel
+from pymongo import MongoClient
+
+
+st.title("🫁 Aya", text_alignment = "center")
+
+
+#MongoDB access
+db_access = st.secrets.mongo_db_key
 
 
 
+# DATABASE SETUP
+client = MongoClient(db_access)  
+db = client["Alveoli"]
 
+# Create collections
+data = db["Patient_Data"]
 
 
 
@@ -47,29 +64,30 @@ else:
 
 st.divider()
 
-with st.form("Input Patient's Details", clear_on_submit=False):
+with st.form("Input Patient's Details", clear_on_submit=True):
 
     name = st.text_input(
-        "Name", key = "name",
-        value=st.session_state.patient.get("name", "")
+        "Name", 
+        key = "name",
     )
 
     age = st.number_input(
-        "Age", key = "age",
+        "Age",
         min_value=0,
         max_value=120,
-        value=st.session_state.patient.get("age", 0)
+        key = "age"
     )
 
     gender = st.radio(
         "Gender",
-        ["Female", "Male"], key = "gender",
-        index=0 if st.session_state.patient.get("gender", "Female") == "Female" else 1
+        ["Female", "Male"], 
+        key = "gender"
     )
 
     hospital_number = st.text_input(
-        "Hospital Number", key="hospital_number",
-        value=st.session_state.patient.get("hospital_number", "")
+        "Hospital Number", 
+        key="hospital_number"
+       
     )
 
     # Diagnosis dropdown
