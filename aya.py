@@ -106,7 +106,7 @@ with st.form("Input Patient's Details", clear_on_submit=True):
     else:
         diagnosis = selected_diagnosis
 
-    submit = st.form_submit_button("Submit")
+    submit = st.form_submit_button("Submit", clear_on_submit=True)
 
     if submit:
 
