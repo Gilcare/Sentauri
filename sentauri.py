@@ -211,7 +211,7 @@ else:
 
 st.divider()
 
-with st.form("Input Patient's Details", clear_on_submit=False):
+with st.form("Input Patient's Details", clear_on_submit=True):
 
     name = st.text_input("Name", key="name")
 
