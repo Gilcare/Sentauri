@@ -5,7 +5,7 @@ from database import patient_data
 from constants import DIAGNOSES
 
 
-st.title("📝 Add New Patient")
+st.title("📝Add Patient Record")
 
 
 # -------------------------
