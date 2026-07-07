@@ -12,7 +12,7 @@ def add_footer():
             width: 100%;
             text-align: center;
             font-size: 12px;
-            color: grey;
+            color: white;
         }
         </style>
 
