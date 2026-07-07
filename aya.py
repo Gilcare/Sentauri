@@ -124,7 +124,7 @@ with st.form("Input Patient's Details", clear_on_submit=True):
             "gender": gender,
             "hospital_number": hospital_number,
             "diagnosis": diagnosis,
-            "visit_date": st.session_state.visit_date,
+            "visit_date": st.session_state.visit_date.isoformat(),
         }
 
         data.insert_one(patient)
