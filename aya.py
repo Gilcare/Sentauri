@@ -57,12 +57,27 @@ DIAGNOSES = [
 ]
 
 # Determine which diagnosis to pre-select
-current_diagnosis = st.session_state.get("diagnosis", "")
+"""current_diagnosis = st.session_state.get("diagnosis", "")
 
 if current_diagnosis in DIAGNOSES:
     diagnosis_index = DIAGNOSES.index(current_diagnosis)
 else:
-    diagnosis_index = DIAGNOSES.index("Other")
+    diagnosis_index = DIAGNOSES.index("Other")"""
+
+
+# -------------------------
+# Diagnosis
+# -------------------------
+
+# Initialize session state
+if "selected_diagnosis" not in st.session_state:
+    st.session_state.selected_diagnosis = "Other"
+
+if "custom_diagnosis" not in st.session_state:
+    st.session_state.custom_diagnosis = ""
+
+
+
 
 st.divider()
 
@@ -96,8 +111,9 @@ with st.form("Input Patient's Details", clear_on_submit=True):
     selected_diagnosis = st.selectbox(
         "Diagnosis",
         DIAGNOSES,
-        index=diagnosis_index
+        key="selected_diagnosis"
     )
+
 
     visit_date = st.date_input(
         "Visit Date",
@@ -105,12 +121,14 @@ with st.form("Input Patient's Details", clear_on_submit=True):
     )
 
     
-    # Allow custom diagnosis
+    # If "Other" is selected, allow custom diagnosis entry
     if selected_diagnosis == "Other":
-        diagnosis = st.text_input(
-            "Other Diagnosis",
-            value=current_diagnosis
+        st.text_input(
+            "Enter Diagnosis",
+            key="custom_diagnosis",
+            placeholder="e.g. Allergic Bronchopulmonary Aspergillosis"
         )
+        diagnosis = st.session_state.custom_diagnosis.strip()
     else:
         diagnosis = selected_diagnosis
 
