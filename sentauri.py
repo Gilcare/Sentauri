@@ -166,6 +166,7 @@ if audio_file is not None and not st.session_state.audio_processed:
     st.session_state["hospital_number"] = patient["hospital_number"] or ""
     st.session_state["diagnosis"] = patient["diagnosis"] or ""
 
+    st.session_state.audio_processed = True
 
 
 
@@ -264,5 +265,5 @@ with st.form("Input Patient's Details", clear_on_submit=False):
         data.insert_one(patient)
 
         st.success("Patient record saved successfully.")
-        st.session_state.audio_processed = True
+        
 
