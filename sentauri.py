@@ -2,9 +2,23 @@ import re
 import streamlit as st
 import tempfile
 from faster_whisper import WhisperModel
+from pymongo import MongoClient
 
 
 st.title("🫁 Aya", text_alignment = "center")
+
+
+#MongoDB access
+db_access = st.secrets.mongo_db_key
+
+
+# -------------------------------
+# DATABASE SETUP
+# -------------------------------
+client = MongoClient(db_access)  
+db = client["Alveoli"]
+
+
 
 
 model = WhisperModel(
