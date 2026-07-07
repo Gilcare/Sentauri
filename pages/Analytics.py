@@ -77,7 +77,13 @@ age_bins = pd.cut(
     bins=[0,18,30,45,60,75,100]
 )
 
-ages = age_bins.value_counts().sort_index()
+ages = (
+    age_bins
+    .value_counts()
+    .sort_index()
+)
+
+ages.index = ages.index.astype(str)
 
 st.bar_chart(ages)
 
