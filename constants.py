@@ -1,7 +1,30 @@
+# List of common pulmonology diagnoses
 DIAGNOSES = [
     "Asthma",
     "Atypical Pneumonia",
     "Benign Lung Mass",
-    ...
+    "COPD",
+    "Diffuse Parenchymal Lung Disease",
+    "Disseminated Tuberculosis",
+    "Pulmonary Tuberculosis",
+    "Post-TB Lung Sequelae",
+    "Interstitial Lung Disease",
+    "Lung Cancer",
+    "Pneumonia",
+    "Bronchiectasis",
+    "Pleural Effusion",
+    "Pulmonary Fibrosis",
+    "Pulmonary Embolism",
+    "Sarcoidosis",
+    "Obstructive Sleep Apnea",
+    "COVID-19 Pneumonia",
+    "Empyema thoracis",
+    "Supporative Lung Disease",
+    "Pneumothorax",
+    "Lymphangioleiomyomatosis",
+    "Pulmonary Langerhans Cell Histiocytosis",
+    "Allergic Bronchopulmonary Aspergillosis",
+    "Viral Pharyngitis",
     "Other"
 ]
+
