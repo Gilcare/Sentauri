@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🫁 Aya")
+st.title("🫁 Aya", text_alignment = "center")
 
 records = list(patient_data.find({}, {"_id":0}))
 
