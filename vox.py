@@ -1,107 +1,269 @@
+import re
 import streamlit as st
-import pandas as pd
-from datetime import datetime
+import tempfile
+from faster_whisper import WhisperModel
+from pymongo import MongoClient
 
-# 1. Page Config - Set to WIDE layout so it uses full mobile screen width
-st.set_page_config(
-    page_title="Pulmonology Console", 
-    page_icon="🫁", 
-    layout="wide",
-    initial_sidebar_state="collapsed"
+
+st.title("🫁 Aya", text_alignment = "center")
+
+
+#MongoDB access
+db_access = st.secrets.mongo_db_key
+
+
+
+# DATABASE SETUP
+client = MongoClient(db_access)  
+db = client["Alveoli"]
+
+# Create collections
+data = db["Patient_Data"]
+
+
+model = WhisperModel(
+    "base",
+    device="cpu",
+    compute_type="int8"
 )
 
-# --- ADVANCED HIGH-TECH STYLING (Dark Mode Fixes) ---
-# This custom CSS eliminates huge margins and injects a crisp, neon biotech aesthetic
-st.markdown("""
-    <style>
-    /* Make metric text pop with a high-tech cyan glow */
-    [data-testid="stMetricValue"] {
-        font-size: 2rem !important;
-        color: #00E5FF !important;
-        font-family: 'Courier New', monospace;
-    }
-    /* Style container borders slightly softer for a sleek card look */
-    div[data-testid="stContainer"] {
-        border: 1px solid #2d3748 !important;
-        background-color: #1a202c !important;
-        border-radius: 8px !important;
-        padding: 15px !important;
-        margin-bottom: 10px !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+
+st.info("""Please say:
+\nName,
+\nAge,
+\nGender,
+\nHospital Number,
+\nDiagnosis.
+\nExample:'Ada Femi, age 25, female, hospital number 345678, diagnosis asthma.'""")
 
 
-# 2. DATA UTILITY (Simulated MongoDB Fetch)
-# Replace this function with your actual 'pymongo' collection find query
-@st.cache_data(ttl=60) # Caches data for 1 minute to keep the app blazing fast
-def fetch_clinical_data():
-    mock_mongodb_docs = [
-        {"week_ending": "2026-07-05", "total_patients": 54, "asthma": 22, "copd": 18, "pneumonia_other": 14, "notes": "Harmattan dust surge in Lagos area."},
-        {"week_ending": "2026-06-28", "total_patients": 41, "asthma": 15, "copd": 16, "pneumonia_other": 10, "notes": "Standard baseline traffic."},
-        {"week_ending": "2026-06-21", "total_patients": 38, "asthma": 12, "copd": 14, "pneumonia_other": 12, "notes": "No unusual environmental anomalies."},
-        {"week_ending": "2026-06-14", "total_patients": 49, "asthma": 20, "copd": 19, "pneumonia_other": 10, "notes": "Heavy rainfall; high humidity cases reported."}
+if "patient" not in st.session_state:
+    st.session_state.patient = {
+        "name": "",
+        "age": 0,
+        "gender": "Female",
+        "hospital_number": "",
+        "diagnosis": ""
+    }
+
+
+
+def extract_fields(text: str):
+    """
+    Extract patient details from a clinical transcript.
+
+    Expected examples:
+    - Jared Kushner, age 74, male, hospital number 36449968, diagnosis pneumonia.
+    - Mary Jane Doe, 52-year-old female, hospital number 55667788, diagnosis pulmonary tuberculosis.
+    """
+
+    patient = {
+        "name": None,
+        "age": None,
+        "gender": None,
+        "hospital_number": None,
+        "diagnosis": None
+    }
+
+    # -------------------------
+    # Name
+    # Everything before age or hospital number
+    # -------------------------
+    name_match = re.search(
+        r"^\s*(.+?)(?=,\s*(?:age|\d{1,3}-?year|hospital))",
+        text,
+        re.IGNORECASE
+    )
+
+    if name_match:
+        patient["name"] = name_match.group(1).strip().title()
+
+    # -------------------------
+    # Age
+    # -------------------------
+    age_patterns = [
+        r"age\s*(\d{1,3})",
+        r"(\d{1,3})\s*years?\s*old",
+        r"(\d{1,3})[-\s]*year[-\s]*old"
     ]
-    return pd.DataFrame(mock_mongodb_docs)
 
-df = fetch_clinical_data()
+    for pattern in age_patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            patient["age"] = int(match.group(1))
+            break
 
-
-# 3. INTERFACE HEADER
-st.title("🫁 Pulmonology Analytics")
-st.caption("⚡ Senior Consultant & Resident Real-Time Mobile Console")
-st.write("---")
-
-
-# 4. TOP KPI METRICS (Thumb-friendly row at the top)
-# On mobile, Streamlit automatically and beautifully stacks these vertically
-m_col1, m_col2 = st.columns(2)
-with m_col1:
-    st.metric(
-        label="Patients This Week", 
-        value=int(df["total_patients"].iloc[0]), 
-        delta=f"{int(df['total_patients'].iloc[0] - df['total_patients'].iloc[1])} vs Last Week"
-    )
-with m_col2:
-    st.metric(
-        label="Monthly Running Total", 
-        value=int(df["total_patients"].sum()),
-        delta="Active Audit Cycle"
+    # -------------------------
+    # Gender
+    # -------------------------
+    gender_match = re.search(
+        r"\b(male|female)\b",
+        text,
+        re.IGNORECASE
     )
 
-st.write("---")
-st.markdown("#### 📋 Clinical Records History")
+    if gender_match:
+        patient["gender"] = gender_match.group(1).title()
+
+    # -------------------------
+    # Hospital Number
+    # -------------------------
+    hospital_match = re.search(
+        r"hospital\s*(?:number|no\.?|#)\s*(\d+)",
+        text,
+        re.IGNORECASE
+    )
+
+    if hospital_match:
+        patient["hospital_number"] = hospital_match.group(1)
+
+    # -------------------------
+    # Diagnosis
+    # Everything after "diagnosis"
+    # -------------------------
+    diagnosis_match = re.search(
+        r"diagnosis[:,]?\s*(.+?)[.]?$",
+        text,
+        re.IGNORECASE
+    )
+
+    if diagnosis_match:
+        patient["diagnosis"] = diagnosis_match.group(1).strip().title()
+
+    return patient
 
 
-# 5. DYNAMIC MOBILE CARD LOOP
-# Instead of forcing consultants to horizontally scroll a grid table, 
-# we map each data row into an isolated, beautiful dark-mode card.
-for index, row in df.iterrows():
+
+
+audio_file = st.audio_input("Record Data")
+
+if audio_file is not None:
+    # Save to temporary file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+        tmp.write(audio_file.read())
+        tmp_path = tmp.name
+
+    segments, info = model.transcribe(tmp_path)
+
+    #st.write("Language:", info.language)
+
+    full_text = ""
+
+    for segment in segments:
+        full_text += segment.text + " "
+        #st.write(f"{segment.start:.2f}s → {segment.end:.2f}s : {segment.text}")
+
+    st.subheader("Full transcription")
+    st.success(full_text)
+    patient = extract_fields(full_text)
+
+    st.session_state.name = patient["name"] or ""
+    st.session_state.age = patient["age"] or 0
+    st.session_state.gender = patient["gender"] or "Female"
+    st.session_state.hospital_number = patient["hospital_number"] or ""
+    st.session_state.diagnosis = patient["diagnosis"] or ""
     
-    # Creates a distinct, clean bordered box for each week's entry
-    with st.container():
-        
-        # Header layout inside the card
-        c1, c2 = st.columns([2, 1])
-        with c1:
-            # Parse date nicely
-            date_obj = datetime.strptime(row['week_ending'], "%Y-%m-%d").strftime("%b %d, %Y")
-            st.markdown(f"📅 **Week Ending:** `{date_obj}`")
-        with c2:
-            # Right-aligned bold patient counter
-            st.markdown(f"👥 **Total: {row['total_patients']}**")
-            
-        # Dropdown section hidden away so the mobile screen stays clean and scannable.
-        # Consultants only tap this when they need to drill into diagnostic metrics.
-        with st.expander("🔍 Tap to expand case diagnostics"):
-            
-            # Sub-metrics presented inside the drop-down card
-            sub_c1, sub_c2, sub_c3 = st.columns(3)
-            sub_c1.metric(label="🫁 Asthma", value=row['asthma'])
-            sub_c2.metric(label="🚬 COPD", value=row['copd'])
-            sub_c3.metric(label="🦠 Other", value=row['pneumonia_other'])
-            
-            # Clinical triggers / notes block
-            st.markdown("💬 **Consultant Notes / Clinical Triggers:**")
-            st.info(row['notes'])
 
+    st.session_state.patient = patient
+
+
+
+
+
+# Input Data Via Text
+
+# List of common pulmonology diagnoses
+DIAGNOSES = [
+    "Asthma",
+    "Atypical Pneumonia",
+    "Benign Lung Mass",
+    "COPD",
+    "Diffuse Parenchymal Lung Disease",
+    "Disseminated Tuberculosis",
+    "Pulmonary Tuberculosis",
+    "Post-TB Lung Sequelae",
+    "Interstitial Lung Disease",
+    "Lung Cancer",
+    "Pneumonia",
+    "Bronchiectasis",
+    "Pleural Effusion",
+    "Pulmonary Fibrosis",
+    "Pulmonary Embolism",
+    "Sarcoidosis",
+    "Obstructive Sleep Apnea",
+    "COVID-19 Pneumonia",
+    "Empyema thoracis",
+    "Supporative Lung Disease",
+    "Pneumothorax",
+    "Lymphangioleiomyomatosis",
+    "Pulmonary Langerhans Cell Histiocytosis",
+    "Viral Pharyngitis",
+    "Other"
+]
+
+# Determine which diagnosis to pre-select
+current_diagnosis = st.session_state.patient.get("diagnosis", "")
+
+if current_diagnosis in DIAGNOSES:
+    diagnosis_index = DIAGNOSES.index(current_diagnosis)
+else:
+    diagnosis_index = DIAGNOSES.index("Other")
+
+st.divider()
+
+with st.form("Input Patient's Details", clear_on_submit=False):
+
+    name = st.text_input(
+        "Name", key = "name",
+        value=st.session_state.patient.get("name", "")
+    )
+
+    age = st.number_input(
+        "Age", key = "age",
+        min_value=0,
+        max_value=120,
+        value=st.session_state.patient.get("age", 0)
+    )
+
+    gender = st.radio(
+        "Gender",
+        ["Female", "Male"], key = "gender",
+        index=0 if st.session_state.patient.get("gender", "Female") == "Female" else 1
+    )
+
+    hospital_number = st.text_input(
+        "Hospital Number", key="hospital_number",
+        value=st.session_state.patient.get("hospital_number", "")
+    )
+
+    # Diagnosis dropdown
+    selected_diagnosis = st.selectbox(
+        "Diagnosis",
+        DIAGNOSES,
+        index=diagnosis_index
+    )
+
+    # Allow custom diagnosis
+    if selected_diagnosis == "Other":
+        diagnosis = st.text_input(
+            "Other Diagnosis",
+            value=current_diagnosis
+        )
+    else:
+        diagnosis = selected_diagnosis
+
+    submit = st.form_submit_button("Submit")
+
+    if submit:
+
+        patient = {
+            "name": name,
+            "age": age,
+            "gender": gender,
+            "hospital_number": hospital_number,
+            "diagnosis": diagnosis
+        }
+
+        data.insert_one(patient)
+
+        st.success("Patient record saved successfully. ✅")
