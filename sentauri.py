@@ -28,6 +28,9 @@ model = WhisperModel(
 )
 
 
+if "audio_processed" not in st.session_state:
+    st.session_state.audio_processed = False
+
 st.info("""Please say:
 \nName,
 \nAge,
@@ -137,7 +140,7 @@ def extract_fields(text: str):
 
 audio_file = st.audio_input("Record Data")
 
-if audio_file is not None:
+if audio_file is not None and not st.session_state.audio_processed:
     # Save to temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
         tmp.write(audio_file.read())
@@ -157,15 +160,11 @@ if audio_file is not None:
     st.success(full_text)
     patient = extract_fields(full_text)
 
-    st.session_state.name = patient["name"] or ""
-    st.session_state.age = patient["age"] or 0
-    st.session_state.gender = patient["gender"] or "Female"
-    st.session_state.hospital_number = patient["hospital_number"] or ""
-    st.session_state.diagnosis = patient["diagnosis"] or ""
-    
-
-    st.session_state.patient = patient
-
+    st.session_state["name"] = patient["name"] or ""
+    st.session_state["age"] = patient["age"] or 0
+    st.session_state["gender"] = patient["gender"] or "Female"
+    st.session_state["hospital_number"] = patient["hospital_number"] or ""
+    st.session_state["diagnosis"] = patient["diagnosis"] or ""
 
 
 
@@ -202,7 +201,7 @@ DIAGNOSES = [
 ]
 
 # Determine which diagnosis to pre-select
-current_diagnosis = st.session_state.patient.get("diagnosis", "")
+current_diagnosis = st.session_state.get("diagnosis", "")
 
 if current_diagnosis in DIAGNOSES:
     diagnosis_index = DIAGNOSES.index(current_diagnosis)
@@ -213,27 +212,25 @@ st.divider()
 
 with st.form("Input Patient's Details", clear_on_submit=False):
 
-    name = st.text_input(
-        "Name", key = "name",
-        value=st.session_state.patient.get("name", "")
-    )
+    name = st.text_input("Name", key="name")
 
     age = st.number_input(
-        "Age", key = "age",
+        "Age",
         min_value=0,
         max_value=120,
-        value=st.session_state.patient.get("age", 0)
+        key = "age"
     )
 
     gender = st.radio(
         "Gender",
-        ["Female", "Male"], key = "gender",
-        index=0 if st.session_state.patient.get("gender", "Female") == "Female" else 1
+        ["Female", "Male"], 
+        key = "gender"
+     
     )
 
     hospital_number = st.text_input(
-        "Hospital Number", key="hospital_number",
-        value=st.session_state.patient.get("hospital_number", "")
+        "Hospital Number", 
+        key="hospital_number"
     )
 
     # Diagnosis dropdown
@@ -254,19 +251,18 @@ with st.form("Input Patient's Details", clear_on_submit=False):
 
     submit = st.form_submit_button("Submit")
 
-    if submit:
 
+    if submit:
         patient = {
-            "name": name,
-            "age": age,
-            "gender": gender,
-            "hospital_number": hospital_number,
+            "name": st.session_state.name,
+            "age": st.session_state.age,
+            "gender": st.session_state.gender,
+            "hospital_number": st.session_state.hospital_number,
             "diagnosis": diagnosis
         }
 
         data.insert_one(patient)
 
-        st.success("Patient record saved successfully. ✅")
-        #st.write(patient)
-
+        st.success("Patient record saved successfully.")
+        st.session_state.audio_processed = True
 
