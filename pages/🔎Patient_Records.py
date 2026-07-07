@@ -28,6 +28,3 @@ st.dataframe(
 
 
 
-
-
-add_footer()
