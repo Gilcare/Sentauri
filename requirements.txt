@@ -1,6 +1,7 @@
 faster-whisper
 ffmpeg
 pandas
+pymongo
 regex
 streamlit
 torch
