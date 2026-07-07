@@ -12,13 +12,13 @@ st.title("🫁 Aya", text_alignment = "center")
 db_access = st.secrets.mongo_db_key
 
 
-# -------------------------------
+
 # DATABASE SETUP
-# -------------------------------
 client = MongoClient(db_access)  
 db = client["Alveoli"]
 
-
+# Create collections
+data = db["Patient_Data"]
 
 
 model = WhisperModel(
@@ -259,9 +259,9 @@ with st.form("Input Patient's Details", clear_on_submit=False):
             "diagnosis": diagnosis
         }
 
-        # patients_collection.insert_one(patient)
+        data.insert_one(patient)
 
         st.success("Patient record saved successfully. ✅")
-        st.write(patient)
+        #st.write(patient)
 
 
