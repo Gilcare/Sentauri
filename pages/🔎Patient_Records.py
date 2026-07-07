@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from database import patient_data
+from utils import add_footer
 
 st.title("👥 Patient Records")
 
@@ -23,3 +24,10 @@ st.dataframe(
     use_container_width=True,
     hide_index=True
 )
+
+
+
+
+
+
+add_footer()
