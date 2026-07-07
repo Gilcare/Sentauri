@@ -265,5 +265,13 @@ with st.form("Input Patient's Details", clear_on_submit=True):
         data.insert_one(patient)
 
         st.success("Patient record saved successfully.")
+        st.session_state.name = ""
+        st.session_state.age = 0
+        st.session_state.gender = "Female"
+        st.session_state.hospital_number = ""
+        st.session_state.diagnosis = ""
         
+        st.session_state.audio_processed = False
+        
+        st.rerun ()
 
